@@ -6,17 +6,23 @@ Application française d’apprentissage du russe, sans dépendance externe. 30 
 
 Ouvrir `index.html` ou publier le dossier à la racine de GitHub Pages (Settings → Pages → Deploy from a branch → main / root). Les fichiers nécessaires sont `index.html`, `style.css`, `curriculum.js`, `core.js` et `app.js`. Aucune compilation.
 
-## Progression sur GitHub
+## Sauvegarde automatique (V4)
 
-1. Recommandé : créer un dépôt **privé** pour les résultats (par exemple `russian-progress`), avec un README pour initialiser sa branche main. Le site lui-même peut rester public.
-2. Créer un jeton personnel **fine-grained**, limité au dépôt de progression, avec **Contents : Read and write**. Choisir une date d’expiration adaptée.
-3. Dans le site → **Sauvegarde & audio**, renseigner compte, dépôt, branche, `progress/julien.json`, puis le jeton. La visibilité du dépôt est contrôlée ; un dépôt public demande une confirmation explicite.
-4. À la connexion, les résultats GitHub sont chargés et fusionnés avec la session actuelle. Une nouvelle réponse déclenche une sauvegarde différée de 2,5 secondes ; les résultats sont aussi envoyés en fin de session. Le bouton Synchroniser recharge également les autres appareils.
-5. Attendre **Sauvegardé sur GitHub** avant de fermer. Si un envoi échoue, les résultats restent en mémoire avec un indicateur d’attente : réessayer ou exporter JSON.
+Le site reste hébergé sur GitHub Pages. La progression est désormais enregistrée dans un service de stockage durable distinct, sans configuration GitHub ou Supabase à effectuer par l’utilisateur.
 
-Aucun `localStorage`, `sessionStorage`, IndexedDB ou cookie de progression. Le jeton et les réglages de connexion restent en mémoire : ils sont à ressaisir après rechargement. Ne jamais publier un jeton dans le code. Les résultats contiennent des identifiants d’événements, des dates, des thèmes, des réussites et des temps estimés, pas le texte des réponses. Le fichier de progression est réservé à ce schéma ; un fichier mal formé n’est pas écrasé. Des sauvegardes simultanées sont fusionnées par identifiants et retentées en cas de conflit de SHA.
+1. Dans le site, ouvrir **Sauvegarde & audio** et cliquer **Activer avec ChatGPT**.
+2. Se connecter avec son compte ChatGPT dans l’onglet d’activation, puis revenir au cours.
+3. La connexion est mémorisée sur cet appareil pendant 90 jours. Utiliser le même compte sur chaque appareil pour retrouver la même progression.
 
-Ce choix convient à un outil personnel. Pour une application multi-utilisateur, utiliser plutôt un serveur avec une GitHub App ou OAuth et des secrets côté serveur. GitHub Pages seul ne peut pas fournir ce serveur.
+Seule la session de connexion est conservée dans `localStorage` ; aucune date, réponse, leçon ou progression n’y est enregistrée. Le jeton de session est délivré automatiquement par le serveur après connexion ; aucun jeton GitHub personnel n’est demandé et aucun secret de serveur n’est publié dans le dépôt.
+
+L’activation dans un autre onglet permet à la session du cours déjà ouverte de conserver ses réponses en mémoire. Les modifications de connexion sont propagées entre onglets. À l’ouverture, les résultats sont chargés depuis le serveur. Après chaque réponse, l’envoi démarre après 2,5 secondes ; un envoi est également tenté en fin de session et au retour de la connexion Internet.
+
+Le serveur ajoute les événements sans écraser l’historique. Les identifiants permettent d’éviter les doublons, même après une répétition de l’envoi ou sur plusieurs appareils. Chaque compte a son propre parcours ; la lecture et l’écriture de ses résultats exigent une session valide.
+
+Attendre **Sauvegardé en ligne** avant de fermer. Hors ligne, les réponses non envoyées restent en mémoire et une alerte de fermeture rappelle qu’elles ne sont pas encore enregistrées. Utiliser l’export JSON pour emporter une copie si l’accès au service est interrompu. L’import des exports V3 reste disponible. Les éventuels anciens fichiers de progression GitHub ne sont pas supprimés.
+
+Le service est déployé à https://poekhali-progress.osharkio.chatgpt.site. Son code et ses migrations sont versionnés séparément via Sites ; la clé de signature est configurée exclusivement comme secret d’exécution. Les réponses écrites exactes ne sont pas enregistrées, seulement leur réussite, leur thème et leur temps estimé.
 
 ## Pédagogie
 
@@ -38,6 +44,6 @@ L’aide latine est une translittération pédagogique cohérente, pas une trans
 
 `node tests/core.test.cjs` pour les fonctions de progression et de génération.
 
-`node tests/dom.test.cjs` pour les interactions et la synchronisation GitHub simulée (jsdom requis seulement pour ces tests, par exemple via `npm install --no-save jsdom`). Ces deux suites ont été exécutées lors de la livraison.
+`node tests/dom.test.cjs` pour les interactions et la synchronisation en ligne simulée (jsdom requis seulement pour ces tests, par exemple via `npm install --no-save jsdom`). Ces deux suites ont été exécutées lors de la livraison.
 
-`node tests/browser.test.cjs` fournit les scénarios de navigation et de rendu dans Chromium (Playwright requis). Cette suite n’a pas été exécutée dans le conteneur : le téléchargement du navigateur était indisponible. La lecture réelle par une voix russe et l’envoi authentifié des résultats restent à vérifier sur ton appareil après connexion.
+`node tests/browser.test.cjs` fournit les scénarios de navigation et de rendu dans Chromium (Playwright requis). Cette suite n’a pas été exécutée dans le conteneur : le téléchargement du navigateur était indisponible. La lecture réelle par une voix russe et l’activation réelle avec ton compte ChatGPT restent à vérifier sur ton appareil.
