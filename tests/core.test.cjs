@@ -1,10 +1,11 @@
-const assert=require('node:assert/strict');const K=require('../core.js'),C=require('../curriculum.js');
-assert.equal(C.lessons.length,30);assert.equal(C.alphabet.length,33);
-assert.equal(K.normalize('Ча́й!'),K.normalize('чай'));assert.notEqual(K.normalize('чай'),K.normalize('чаи'));assert.equal(K.normalize('ещё'),K.normalize('еще'));
-let words=new Set();for(const l of C.lessons){assert.ok(l.rule.length>100);for(const w of l.words){assert.ok(w.ru&&w.fr);assert.ok(!words.has(w.id));words.add(w.id)}const q=K.questions(l,C,{exam:true});assert.ok(q.some(x=>x.type==='write'));assert.ok(q.some(x=>x.skill==='grammaire'));assert.ok(q.some(x=>x.skill==='écoute'));for(const x of q){if(x.choices){assert.ok(x.choices.includes(x.answer));assert.equal(new Set(x.choices).size,x.choices.length)}}assert.ok(!K.questions(l,C,{audio:false}).some(x=>x.skill==='écoute'));}
-const e=(id,at,more)=>({id,at,day:at.slice(0,10),...more});const sample=[e('1','2026-10-01T12:00:00Z',{kind:'answer',word:'l01w0',lesson:'l01',skill:'lecture',correct:true}),e('2','2026-10-02T12:00:00Z',{kind:'answer',word:'l01w0',lesson:'l01',skill:'lecture',correct:true}),e('3','2026-10-03T12:00:00Z',{kind:'answer',word:'l01w0',lesson:'l01',skill:'écriture',correct:true})];
-const s=K.derive(sample,Date.parse('2026-10-04T12:00:00Z'));assert.equal(s.answers,3);assert.equal(s.mastered,1);assert.equal(s.streak,3);assert.equal(s.due.length,0);assert.equal(K.mergeEvents(sample,sample).length,3);
-assert.ok(!K.derive([...sample,e('4','2026-10-04T12:00:00Z',{kind:'complete',lesson:'l01',score:79})]).lessons.l01.passed);
-assert.ok(K.derive([...sample,e('4','2026-10-04T12:00:00Z',{kind:'complete',lesson:'l01',score:80})]).lessons.l01.passed);
-assert.throws(()=>K.parseProgress({schema:2,events:[]}));assert.throws(()=>K.parseProgress({schema:1,events:[{}]}));assert.equal(K.parseProgress({schema:1,events:sample}).events.length,3);
-console.log(`Core OK: ${C.lessons.length} lessons, ${words.size} expressions, progression, scoring, normalization and spaced review.`);
+const assert=require('node:assert/strict');
+const K=require('../learn-core.js');require('../curriculum.js');require('../core.js');require('../courses.js');
+assert.equal(COURSES.ru.lessons.length,34);assert.equal(COURSES.zh.lessons.length,12);
+for(const [lang,c] of Object.entries(COURSES)){const ids=new Set();for(const l of c.lessons){assert.ok(l.words.length>=4);assert.ok(l.rule.length>50);assert.ok(!ids.has(l.id));ids.add(l.id);for(const w of l.words){assert.ok(!ids.has(w.id));ids.add(w.id);if(lang==='zh')assert.ok(w.latin);}for(const q of K.questions(l,c,true)){assert.ok(q.answer);if(q.choices){assert.ok(q.choices.includes(q.answer));assert.equal(new Set(q.choices).size,q.choices.length);}}}}
+assert.equal(K.norm(' Ма́ма! '),'мама');assert.equal(K.norm('Ёж'),'еж');assert.notEqual(K.norm('Й'),'и');assert.notEqual(K.norm('mā','zh'),K.norm('má','zh'));assert.equal(K.norm('nǐ hǎo','zh'),K.norm('nǐhǎo','zh'));
+const e=(id,lang,correct,at='2026-10-09T12:00:00Z')=>({id,lang,at,day:'2026-10-09',kind:'answer',word:'word',correct});
+let es=[e('1','ru',true),e('2','zh',false)];assert.equal(K.derive(es,'ru').answers,1);assert.equal(K.derive(es,'zh').correct,0);assert.equal(K.merge(es,[es[0]]).length,2);assert.deepEqual(K.parse({schema:1,events:es}),es);assert.throws(()=>K.parse({schema:2,events:[{id:'x'}]}));assert.throws(()=>K.parse({schema:2,events:[{...e('x','ru',true),kind:'complete',lesson:'l01',score:150}]}));
+assert.equal(K.derive([e('1','ru',true)],'ru',Date.parse('2026-10-10T12:01:00Z')).due.length,1);
+assert.equal(K.derive([e('1','ru',true)],'ru',Date.parse('2026-10-09T12:01:00Z')).due.length,0);
+assert.equal(K.derive([{id:'c',at:'2026-10-09T12:00:00Z',day:'2026-10-09',kind:'complete',lesson:'l01',score:79}],'ru').lessons.l01.passed,false);
+console.log('Core OK: 46 lessons, unique identifiers, valid exercises, language isolation, tones, old JSON support and spaced revision.');

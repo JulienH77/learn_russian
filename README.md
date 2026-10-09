@@ -1,49 +1,40 @@
-# Поехали — Russian Journey V3
+# Pas à pas · Russe & chinois · V6
 
-Application française d’apprentissage du russe, sans dépendance externe. 30 leçons de découverte et d’entraînement de zéro aux bases A2 ; ce parcours ne certifie pas un niveau CECRL.
+Application en français, sans compilation ni dépendance à charger pour fonctionner. Ouvrir `index.html` avec un serveur HTTP ou utiliser GitHub Pages.
 
-## Utilisation
+## Apprentissage
 
-Ouvrir `index.html` ou publier le dossier à la racine de GitHub Pages (Settings → Pages → Deploy from a branch → main / root). Les fichiers nécessaires sont `index.html`, `style.css`, `curriculum.js`, `core.js` et `app.js`. Aucune compilation.
+- **Russe prioritaire** : 30 leçons de lecture et de conversation, plus 4 leçons en accès libre pour échanger à deux.
+- **Mandarin débutant** : 12 leçons, caractères simplifiés, pinyin avec tons, règles et exercices expliqués en français.
+- Une règle courte, des cartes à découvrir une par une, puis reconnaissance et rappel sans aide. Clavier cyrillique intégré ; clavier de voyelles accentuées pour le pinyin.
+- Bilan à 80 % sur les premières réponses sans indice. Les erreurs reviennent une fois dans la séance, sans gonfler le score. Une fiche consultée ne valide pas la leçon.
+- Révisions à 1, 3, 7, 14 et 30 jours selon les réussites ; retour après 10 minutes en cas d’erreur. Intervalles simples, sans estimation personnalisée de mémoire.
+- Calendrier réel des réponses et bilans, séparé par langue. Aucun résultat fictif au démarrage.
+- Audio par SpeechSynthesis, uniquement avec une voix russe ou mandarin adaptée. Aucune notation de la prononciation ou de l’écriture manuscrite. Une question audio peut être passée sans pénalité si la voix échoue.
+- Les traductions et le pinyin attendent les modèles enseignés. Le russe accepte les différences de casse, les accents toniques facultatifs et ё/е. Les tons du pinyin restent obligatoires ; ses espaces sont facultatifs.
 
-## Sauvegarde automatique (V4)
+Principes inspirés du rappel actif et de la pratique espacée : https://www.learningscientists.org/faq et https://blog.duolingo.com/spaced-repetition-for-learning/. Contenus et interface originaux, sans affiliation. Ce parcours d’introduction ne certifie aucun niveau CECRL ou HSK.
 
-Le site reste hébergé sur GitHub Pages. La progression est désormais enregistrée dans un service de stockage durable distinct, sans configuration GitHub ou Supabase à effectuer par l’utilisateur.
+## Un JSON pour tous les appareils
 
-1. Dans le site, ouvrir **Sauvegarde & audio** et cliquer **Activer avec ChatGPT**.
-2. Se connecter avec son compte ChatGPT dans l’onglet d’activation, puis revenir au cours.
-3. La connexion est mémorisée sur cet appareil pendant 90 jours. Utiliser le même compte sur chaque appareil pour retrouver la même progression.
+Le fichier `progress/julien.json`, branche `main` du dépôt public `JulienH77/learn_russian`, contient les événements des deux langues. Il est lu à l’ouverture, avec contournement du cache HTTP. Les résultats ne sont jamais persistés dans localStorage, sessionStorage, IndexedDB ou un service worker.
 
-Seule la session de connexion est conservée dans `localStorage` ; aucune date, réponse, leçon ou progression n’y est enregistrée. Le jeton de session est délivré automatiquement par le serveur après connexion ; aucun jeton GitHub personnel n’est demandé et aucun secret de serveur n’est publié dans le dépôt.
+Pour enregistrer automatiquement, ouvrir **Sauvegarde & réglages** et suivre les trois étapes : créer un jeton GitHub fine-grained, sélectionner uniquement `learn_russian`, autoriser **Contents: Read and write**, puis le coller dans le site. Aucun jeton ne doit être placé dans le dépôt ou dans le JSON. Il est transmis uniquement à l’API GitHub.
 
-L’activation dans un autre onglet permet à la session du cours déjà ouverte de conserver ses réponses en mémoire. Les modifications de connexion sont propagées entre onglets. À l’ouverture, les résultats sont chargés depuis le serveur. Après chaque réponse, l’envoi démarre après 2,5 secondes ; un envoi est également tenté en fin de session et au retour de la connexion Internet.
+Par défaut, l’autorisation est retenue dans sessionStorage jusqu’à la fermeture de l’onglet. La case facultative « Mémoriser » utilise localStorage pour l’autorisation seulement. Sur un nouvel appareil, la lecture fonctionne sans connexion ; il faut fournir une autorisation pour enregistrer de nouvelles séances. Le dépôt public rend les dates et résultats publics.
 
-Le serveur ajoute les événements sans écraser l’historique. Les identifiants permettent d’éviter les doublons, même après une répétition de l’envoi ou sur plusieurs appareils. Chaque compte a son propre parcours ; la lecture et l’écriture de ses résultats exigent une session valide.
+Les réponses en cours sont en mémoire vive jusqu’à l’envoi : attendre **Enregistré dans GitHub** avant de fermer. L’enregistrement est regroupé après 8 secondes sans nouvelle réponse et lancé à la fin d’une séance. Une alerte protège la fermeture avec des réponses en attente. En cas d’échec, garder l’onglet ouvert ou exporter le JSON. L’export/import permet aussi un transfert manuel sans jeton.
 
-Attendre **Sauvegardé en ligne** avant de fermer. Hors ligne, les réponses non envoyées restent en mémoire et une alerte de fermeture rappelle qu’elles ne sont pas encore enregistrées. Utiliser l’export JSON pour emporter une copie si l’accès au service est interrompu. L’import des exports V3 reste disponible. Les éventuels anciens fichiers de progression GitHub ne sont pas supprimés.
+La synchronisation lit le dernier fichier, fusionne les identifiants d’événements et utilise son SHA pour écrire. En cas de conflit, elle relit et réessaie, au maximum trois fois. Les réponses arrivées pendant l’envoi restent en attente. Les JSON invalides ne sont jamais remplacés. Les exports de schéma 1 sont importables ; les anciens événements sans langue sont considérés comme russes. Aucun ancien stockage externe n’est interrogé.
 
-Le service est déployé à https://poekhali-progress.osharkio.chatgpt.site. Son code et ses migrations sont versionnés séparément via Sites ; la clé de signature est configurée exclusivement comme secret d’exécution. Les réponses écrites exactes ne sont pas enregistrées, seulement leur réussite, leur thème et leur temps estimé.
+## Fichiers
 
-## Pédagogie
-
-- Six chapitres, 30 leçons, 33 lettres, vocabulaire et modèles propres à chaque thème.
-- Découverte avec accents toniques, traduction et aide latine facultative.
-- Reconnaissance, écriture avec clavier cyrillique, phrases à reconstruire, grammaire, compréhension de texte et écoute.
-- Entraînement puis test à 80 %. Ouvrir une fiche ne valide jamais une leçon. Les leçons suivantes se débloquent par le résultat du test.
-- Révisions après 1 / 3 / 7 / 14 / 30 jours ; erreur : retour après dix minutes. Trois réussites consécutives indiquent un mot consolidé, pas une preuve de maîtrise absolue.
-- Objectif journalier : 15 réponses. Calendrier au jour local de l’appareil, détails du thème et score, compétences et temps actif estimé (temps de réponse plafonné à deux minutes par exercice).
-- Accents facultatifs, ponctuation et casse tolérées, ё et е assimilés. Й reste distinct de И. Les traductions et reconstructions attendent un modèle précis ; il ne s’agit pas d’une correction intelligente de toutes les formulations naturelles.
-
-## Audio
-
-SpeechSynthesis avec une **vraie voix russe** détectée sur l’appareil, choix de voix et vitesse. Aucune voix étrangère n’est utilisée comme substitut. Sans voix russe, les exercices d’écoute ne sont pas inclus et cette limite est affichée. Le texte d’une question d’écoute reste masqué jusqu’à la correction. La réponse n’est permise qu’après la fin de la lecture.
-
-L’aide latine est une translittération pédagogique cohérente, pas une transcription phonétique complète. L’oral libre, la conversation, les variantes de réponses et la prononciation doivent se travailler avec un russophone ; cette version ne note pas un enregistrement vocal.
+`index.html`, `style.css`, `app.js`, `learn-core.js`, `courses.js`, `curriculum.js` et `core.js` (translittération russe) sont nécessaires. Le fichier de progression est conservé séparément des sources.
 
 ## Vérification
 
-`node tests/core.test.cjs` pour les fonctions de progression et de génération.
+- `node tests/core.test.cjs` : 46 leçons, questions, unicité, tons, langues séparées, ancien JSON, révisions.
+- `node tests/dom.test.cjs` (jsdom requis) : séances complètes russe/chinois, erreurs, indices, clavier, calendrier, deux appareils, conflits GitHub, réponses pendant l’envoi et JSON invalide.
+- `node tests/browser.test.cjs` (Playwright et Chromium requis) : vérification visuelle et débordements sur mobile. Le navigateur Chromium n’a pas pu être téléchargé dans l’environnement de création ; cette suite n’y a donc pas été exécutée.
 
-`node tests/dom.test.cjs` pour les interactions et la synchronisation en ligne simulée (jsdom requis seulement pour ces tests, par exemple via `npm install --no-save jsdom`). Ces deux suites ont été exécutées lors de la livraison.
-
-`node tests/browser.test.cjs` fournit les scénarios de navigation et de rendu dans Chromium (Playwright requis). Cette suite n’a pas été exécutée dans le conteneur : le téléchargement du navigateur était indisponible. La lecture réelle par une voix russe et l’activation réelle avec ton compte ChatGPT restent à vérifier sur ton appareil.
+Les deux premières suites passent. La voix réelle et l’écriture avec le jeton de l’utilisateur doivent être vérifiées sur son appareil ; aucun jeton utilisateur n’est inclus ou nécessaire aux tests simulés.
