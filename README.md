@@ -38,3 +38,5 @@ La synchronisation lit le dernier fichier, fusionne les identifiants d’événe
 - `node tests/browser.test.cjs` (Playwright et Chromium requis) : vérification visuelle et débordements sur mobile. Le navigateur Chromium n’a pas pu être téléchargé dans l’environnement de création ; cette suite n’y a donc pas été exécutée.
 
 Les deux premières suites passent. La voix réelle et l’écriture avec le jeton de l’utilisateur doivent être vérifiées sur son appareil ; aucun jeton utilisateur n’est inclus ou nécessaire aux tests simulés.
+
+Contrôle manuel du site publié : accueil, carte de russe et passage au parcours mandarin vérifiés dans le navigateur. Le JSON public se charge correctement.
