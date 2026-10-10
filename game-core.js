@@ -1,0 +1,9 @@
+(function(){
+LearnCore.questions=function(l,c,audio=false,reviewWords=null){const K=LearnCore,ws=reviewWords||l.words,pool=c.lessons.flatMap(x=>x.words),isRu=c.code==='ru-RU';const options=(w,field)=>K.shuffle([w[field],...K.shuffle([...new Set(pool.filter(x=>x[field]!==w[field]).map(x=>x[field]))]).slice(0,3)]);let qs=[];
+for(const w of ws)qs.push({type:'choice',word:w,prompt:'Que veut dire ce mot ?',text:w.text,answer:w.fr,choices:options(w,'fr')});
+ws.forEach((w,i)=>{const text=K.plain(w.text),tokens=isRu?text.split(/\s+/):[...w.text];if(i===0)qs.push({type:'reverse',word:w,prompt:'Comment dit-on… ?',text:w.fr,answer:w.text,choices:options(w,'text')});else if((isRu&&(tokens.length>1||i%2===1))||(!isRu&&i===1)){const sep=isRu&&tokens.length>1?' ':'';const tiles=isRu&&tokens.length===1?[...text]:tokens;qs.push({type:'tiles',word:w,prompt:tiles.length===text.length?'Recompose le mot':'Construis la phrase',text:w.fr,answer:text,tiles:K.shuffle(tiles),separator:sep});}else qs.push({type:isRu?'write':'pinyin',word:w,prompt:isRu?'À toi de l’écrire !':'Retrouve le pinyin et ses tons',text:isRu?w.fr:w.text,answer:isRu?text:w.latin});});
+const pairs=ws.filter((w,i,a)=>a.findIndex(x=>x.fr===w.fr&&x.text===w.text)===i).slice(0,4);if(pairs.length>1)qs.splice(ws.length,0,{type:'match',prompt:'Associe les mots à leur sens',answer:'matched',left:K.shuffle(pairs),right:K.shuffle(pairs),explain:'Tu as retrouvé les associations entre les mots et leur sens.'});
+if(audio&&ws.length){const w=ws[0];qs.push({type:'audio',word:w,prompt:'Qu’as-tu entendu ?',answer:w.fr,choices:options(w,'fr')});}
+if(l?.clozes?.length){const q=l.clozes[0];qs.push({type:'rule',prompt:q.prompt,answer:q.answer,choices:K.shuffle(q.choices),explain:q.explain});}if(l?.reading){const r=l.reading;qs.push({type:'reading',prompt:r.question,text:r.ru,answer:r.answer,choices:K.shuffle(r.choices),explain:r.fr});}return qs;
+};
+})();
